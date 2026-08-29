@@ -65,8 +65,10 @@ class ConversationService:
     ) -> None:
         """
         Processa o payload original recebido da Meta Cloud API.
+        Compatível com spec v25.0:
+          object: whatsapp_business_account
+          entry[0].changes[0].value.messages[], contacts[], metadata, statuses[]
         """
-
         try:
             if payload.get("object") != "whatsapp_business_account":
                 logger.debug(
@@ -79,7 +81,25 @@ class ConversationService:
                 for change in entry.get("changes", []):
                     value = change.get("value", {})
 
+                    # Loga statuses (entregue/lido) sem processar
+                    if value.get("statuses"):
+                        logger.info("Status update ignorado: %s", value.get("statuses"))
+
+                    # Marca contatos/metadata para debug
+                    contacts = value.get("contacts", [])
+                    metadata = value.get("metadata", {})
+                    if contacts:
+                        logger.debug("Contacts: %s Metadata: %s", contacts, metadata)
+
                     for message in value.get("messages", []):
+                        # tenta marcar como lida antes de processar (best-effort)
+                        msg_id = message.get("id")
+                        if msg_id:
+                            try:
+                                await self.whatsapp.mark_as_read(msg_id)
+                            except Exception:
+                                logger.debug("Falha ao marcar como lida %s", msg_id, exc_info=True)
+
                         await self.handle_message(message)
 
         except Exception:

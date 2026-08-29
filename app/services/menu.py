@@ -55,10 +55,14 @@ class MenuService:
         )
 
         if menu_type == "list":
-            await self._send_text_list(
-                phone,
-                menu,
-            )
+            # Meta: lista interativa nativa; Baileys/texto: fallback numerado
+            if self.whatsapp._is_meta():
+                await self._send_interactive_list(phone, menu)
+            else:
+                await self._send_text_list(
+                    phone,
+                    menu,
+                )
             return
 
         if menu_type == "human":
@@ -80,6 +84,24 @@ class MenuService:
         await self.whatsapp.send_text(
             to=phone,
             text="Não foi possível exibir esta opção.",
+        )
+
+    async def _send_interactive_list(
+        self,
+        phone: str,
+        menu: dict,
+    ) -> None:
+        """
+        Envia lista interativa Meta compatível com Cloud API.
+        Fallback automático para texto é tratado em WhatsAppService.
+        """
+        await self.whatsapp.send_interactive_list(
+            to=phone,
+            body=menu.get("body", "Selecione uma opção:"),
+            button=menu.get("button", "Ver opções"),
+            rows=menu.get("rows", []),
+            header_title=menu.get("title"),
+            footer_text=menu.get("footer"),
         )
 
     async def _send_text_list(

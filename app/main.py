@@ -16,11 +16,11 @@ app = FastAPI(
     version=settings.APP_VERSION,
 )
 
-# Registra apenas o provider configurado
-if settings.WHATSAPP_PROVIDER.lower() == "meta":
-    app.include_router(webhook.router)
-else:
-    app.include_router(connector.router)
+# Compatível com Meta: registra ambos os routers sempre.
+# O envio (WhatsAppService) ainda respeita WHATSAPP_PROVIDER,
+# mas o webhook fica disponível para testes/switch sem restart.
+app.include_router(webhook.router)
+app.include_router(connector.router)
 
 
 @app.get("/")

@@ -53,13 +53,14 @@ MENUS = {
                 "title": "Informações Gerais"
             },
             {
+                "id": "outro_assunto",
+                "title": "Outro assunto"
+            },
+            {
                 "id": "falar_atendente",
                 "title": "Falar com atendente"
             },
-            {
-                "id": "outro_assunto",
-                "title": "Outro assunto"
-            }
+            
         ]
     },
 

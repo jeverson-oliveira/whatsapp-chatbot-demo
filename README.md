@@ -19,12 +19,19 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 ```
 
-Endpoints:
+Endpoints (Meta compatível):
 - `GET /` — info da aplicação
 - `GET /health` — health check
-- `GET /webhook` — verificação Meta
-- `POST /webhook` — webhook Meta
+- `GET /webhook?hub.mode=subscribe&hub.verify_token=...&hub.challenge=...` — verificação Meta (retorna `PlainTextResponse` com challenge)
+- `POST /webhook` — webhook Meta (`whatsapp_business_account` com `entry.changes.value.messages[].type=text|interactive`)
 - `POST /webhook/connector` — webhook Baileys (header `Authorization: Bearer <CONNECTOR_SECRET>`)
+
+### Meta Cloud API — Compatibilidade
+
+- `WhatsAppService` envia via Graph API `https://graph.facebook.com/{META_API_VERSION}/{PHONE_NUMBER_ID}/messages` com `Authorization: Bearer {WHATSAPP_TOKEN}` quando `WHATSAPP_PROVIDER=meta`
+- `MenuService` detecta provider: para Meta envia **listas interativas nativas** (`type: interactive/list`, limites Meta: body 1024, button 20, rows 10); para Baileys faz fallback para texto numerado
+- `ConversationService.process` trata `statuses` (ignora), `contacts/metadata` (log), `messages[].id` (marca como lida via `mark_as_read`), e `interactive[list_reply|button_reply]`
+- Ambos os routers são registrados sempre (`app/main.py`), permitindo switch de provider sem restart
 
 ## White Label — Como customizar
 

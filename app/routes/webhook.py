@@ -8,6 +8,7 @@ from fastapi import (
     Request,
     HTTPException,
 )
+from fastapi.responses import PlainTextResponse
 
 from app.config import settings
 from app.services.conversation import ConversationService
@@ -26,7 +27,10 @@ conversation = ConversationService()
 async def verify_webhook(
     request: Request
 ):
-
+    """
+    Verificação do webhook Meta (GET com hub.mode, hub.verify_token, hub.challenge).
+    Retorna PlainTextResponse com o challenge conforme spec Meta.
+    """
     params = request.query_params
 
     mode = params.get("hub.mode")
@@ -35,11 +39,17 @@ async def verify_webhook(
 
     if (
         mode == "subscribe"
-        and token == settings.VERIFY_TOKEN
+        and token == settings.verify_token
         and challenge is not None
     ):
-        return int(challenge)
+        logger.info("Webhook verificado com sucesso (challenge=%s)", challenge)
+        return PlainTextResponse(content=challenge, status_code=200)
 
+    logger.warning(
+        "Falha na verificação do webhook: mode=%s token_match=%s",
+        mode,
+        token == settings.verify_token,
+    )
     raise HTTPException(
         status_code=403,
         detail="Token inválido"

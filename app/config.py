@@ -29,7 +29,7 @@ class Settings:
 
         self.SESSIONS_DB_PATH = os.getenv(
             "SESSIONS_DB_PATH",
-            "sessions.db",
+            "data/sessions.db",
         )
 
         self.SESSION_TIMEOUT_SECONDS = int( os.getenv(
@@ -42,21 +42,25 @@ class Settings:
             "META_API_VERSION",
             "v25.0",
         )
+        self.META_API_VERSION = self.meta_api_version
 
         self.phone_number_id = os.getenv(
             "PHONE_NUMBER_ID",
             "",
         )
+        self.PHONE_NUMBER_ID = self.phone_number_id
 
         self.whatsapp_token = os.getenv(
             "WHATSAPP_TOKEN",
             "",
         )
+        self.WHATSAPP_TOKEN = self.whatsapp_token
 
         self.verify_token = os.getenv(
             "VERIFY_TOKEN",
             "",
         )
+        self.VERIFY_TOKEN = self.verify_token
 
         self.human_attendant = os.getenv(
             "HUMAN_ATTENDANT",

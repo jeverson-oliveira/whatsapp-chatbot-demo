@@ -22,3 +22,9 @@ __pycache__/
 data/sessions.db
 data/sessions.db-shm
 data/sessions.db-wal
+sessions.db
+sessions.db-shm
+sessions.db-wal
+*.db
+*.db-shm
+*.db-wal
