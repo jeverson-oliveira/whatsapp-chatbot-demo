@@ -17,6 +17,13 @@ __pycache__/
 # Logs
 *.log
 
+# Testes / coverage
+.coverage
+htmlcov/
+.pytest_cache/
+coverage.xml
+*.cover
+
 # Arquivos de banco de dados
 
 data/sessions.db
