@@ -241,6 +241,23 @@ async def test_collect_birth_future_fails(mock_whatsapp, temp_sessions_db):
 
 
 @pytest.mark.asyncio
+async def test_collect_birth_age_over_120(mock_whatsapp, temp_sessions_db):
+    from app.services.session_store import SessionStore
+    store = SessionStore(db_path=temp_sessions_db)
+    flow = RegistrationFlow(whatsapp=mock_whatsapp, sessions=store)
+    phone = "5511999999999"
+    await store.set(phone=phone, state=RegistrationFlow.COLLECT_BIRTH_STATE, topic="produtos_servicos", data={})
+
+    session = await store.get(phone)
+    # 01/01/1900 → idade >120 em 2026
+    await flow._collect_birth(phone=phone, text="01/01/1900", session=session)
+
+    updated = await store.get(phone)
+    assert updated["state"] == RegistrationFlow.COLLECT_BIRTH_STATE
+    assert "120 anos" in mock_whatsapp.send_text.call_args[0][1]
+
+
+@pytest.mark.asyncio
 async def test_collect_city_success_finishes(mock_whatsapp, temp_sessions_db):
     from app.services.session_store import SessionStore
     store = SessionStore(db_path=temp_sessions_db)
